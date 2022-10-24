@@ -7,6 +7,8 @@ import BillingDetailsFields from "./prebuilt/BillingDetailsFields";
 import SubmitButton from "./prebuilt/SubmitButton";
 import CheckoutError from "./prebuilt/CheckoutError";
 
+import { CardElement } from "@stripe/react-stripe-js";
+
 const CardElementContainer = styled.div`
   height: 40px;
   display: flex;
@@ -35,6 +37,28 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
         postal_code: ev.target.zip.value
       }
     };
+
+    const { data: clientSecret } = await axios.post("/api/payment_intents", {
+      amount: price * 100 // In cents
+    });
+
+  };
+
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: "16px",
+        color: "#fff",
+        "::placeholder": {
+          color: "#87bbfd"
+        }
+      }, 
+      invalid: {
+        color: "#f6a4eb",
+        iconColor: "#f6a4eb"
+      },
+    },
+    hidePostalCode: true,
   };
 
   return (
@@ -43,7 +67,9 @@ const CheckoutForm = ({ price, onSuccessfulCheckout }) => {
         <BillingDetailsFields />
       </Row>
       <Row>
-        <CardElementContainer></CardElementContainer>
+        <CardElementContainer>
+          <CardElement options={cardElementOptions} />
+        </CardElementContainer>
       </Row>
       {checkoutError && <CheckoutError>{checkoutError}</CheckoutError>}
       <Row>
